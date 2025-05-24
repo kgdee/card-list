@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Card List</title>
+    <link rel="icon" href="favicon.png" type="image/x-icon" />
+    <link rel="shortcut icon" href="favicon.png" type="image/x-icon" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="script.js" defer></script>
+  </head>
+  <body class="dark-theme">
+    <div class="app container">
+      <div class="header">
+        <h1 class="title">Card List</h1>
+        <div class="add-item">
+          <input class="name-input" type="text" placeholder="Enter item name" />
+          <label class="icon-input button">
+            Choose icon
+            <input type="file" accept="image/*" />
+          </label>
+          <button onclick="addNewCard()">Add Item</button>
+        </div>
+      </div>
+
+      <div class="cards"></div>
+    </div>
+  </body>
+</html>
