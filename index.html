@@ -13,17 +13,28 @@
     <div class="app container">
       <div class="header">
         <h1 class="title">Card List</h1>
-        <div class="add-item">
-          <input class="name-input" type="text" placeholder="Enter item name" />
-          <label class="icon-input button">
-            Choose icon
-            <input type="file" accept="image/*" />
-          </label>
-          <button onclick="addNewCard()">Add Item</button>
-        </div>
+        <button onclick="toggleCardModal()">New Card</button>
       </div>
 
       <div class="cards"></div>
+
+      <div class="card-modal modal" onclick="toggleCardModal()">
+        <div class="modal-content" onclick="stopPropagation(event)">
+          <button class="close" onclick="toggleCardModal()">&times;</button>
+          <div class="modal-header">Add a new Card</div>
+
+          <label class="icon-input" onchange="handleIconInput(event.target.files[0], this)">
+            <img src="images/icon-default-64x64.png" />
+            <input type="file" accept="image/*" />
+          </label>
+
+          <input class="name-input" type="text" placeholder="Enter item name" />
+
+          <textarea class="description-input" placeholder="Item description"></textarea>
+
+          <button class="add" onclick="addNewCard()">Add</button>
+        </div>
+      </div>
     </div>
   </body>
 </html>
