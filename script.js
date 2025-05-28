@@ -1,6 +1,5 @@
 const projectName = "card-list";
 const cardsEl = document.querySelector(".cards");
-const cardModal = document.querySelector(".card-modal");
 
 let cards = JSON.parse(localStorage.getItem(`${projectName}_cards`)) || [];
 
@@ -16,10 +15,6 @@ function stopPropagation(event) {
 }
 
 function addNewCard() {
-  const nameInput = cardModal.querySelector(".name-input");
-  const iconInput = cardModal.querySelector(`.icon-input input[type="file"]`);
-  const descriptionInput = cardModal.querySelector(".description-input");
-
   const itemName = nameInput.value;
   const icon = iconInput.files[0] ? URL.createObjectURL(iconInput.files[0]) : "images/icon-default-64x64.png";
   const description = descriptionInput.value;
@@ -45,7 +40,7 @@ function displayCards() {
   cardsEl.innerHTML = cards.map(
     (card) =>
       `
-      <div class="item" onclick="toggleCardModal(${cards.indexOf(card)})">
+      <div class="item" onclick="CardModal.toggle(${cards.indexOf(card)})">
         <img src="${card.icon}">
         <p class="item-text truncated">${card.name}</p>
       </div>
@@ -53,78 +48,82 @@ function displayCards() {
   );
 }
 
-function handleIconInput(file, element) {
-  const preview = element.querySelector("img");
+const CardModal = (() => {
+  element = document.querySelector(".card-modal")
+  title = document.querySelector(".card-modal .title")
+  submitBtn = document.querySelector(".card-modal .submit")
+  nameInput = document.querySelector(".card-modal .name-input")
+  descriptionInput = document.querySelector(".card-modal .description-input")
+  iconOptions = document.querySelector(".card-modal .icon-options")
+  iconInput = document.querySelector(".card-modal .icon-input")
 
-  if (file instanceof Blob) {
-    preview.src = URL.createObjectURL(file);
-  } else if (file) {
-    preview.src = file;
-  } else {
-    preview.src = "images/icon-default-64x64.png";
+  function toggle(cardIndex) {
+    iconInput.querySelector("input[type=file]").value = null;
+    title.textContent = "Add a new Card";
+    submitBtn.textContent = "Add";
+    nameInput.value = "";
+    descriptionInput.value = "";
+
+    displayIconOptions();
+    handleIconInput(null, iconInput);
+
+    element.classList.toggle("hidden");
+
+    if (isNaN(cardIndex)) return;
+
+    const card = cards[cardIndex];
+
+    title.textContent = `Update ${card.name}`;
+    submitBtn.textContent = "Update";
+
+    handleIconInput(card.icon, iconInput);
+    nameInput.value = card.name;
+    descriptionInput.value = card.description;
   }
 
-  preview.classList.toggle("hidden", !file)
-  element.querySelector("i").classList.toggle("hidden", file)
-  element.style.border = file ? "2px solid" : "2px dashed"
-}
+  function handleIconInput(file, element) {
+    const preview = element.querySelector("img");
 
-function toggleCardModal(cardIndex) {
-  const modalTitle = cardModal.querySelector(".title");
-  const modalSubmit = cardModal.querySelector(".submit");
-  const nameInput = cardModal.querySelector(".name-input");
-  const descriptionInput = cardModal.querySelector(".description-input");
-  const iconInput = cardModal.querySelector(".icon-input");
+    if (file instanceof Blob) {
+      preview.src = URL.createObjectURL(file);
+    } else if (file) {
+      preview.src = file;
+    } else {
+      preview.src = "images/icon-default-64x64.png";
+    }
 
-  iconInput.querySelector("input[type=file]").value = null
-  modalTitle.textContent = "Add a new Card";
-  modalSubmit.textContent = "Add";
-  nameInput.value = "";
-  descriptionInput.value = "";
+    preview.classList.toggle("hidden", !file);
+    element.querySelector("i").classList.toggle("hidden", file);
+    element.style.border = file ? "2px solid" : "2px dashed";
+  }
 
-  displayIconOptions()
-  handleIconInput(null, iconInput);
+  function displayIconOptions() {
+    const icons = [
+      "images/cards/bamboo.jpg",
+      "images/cards/butterflies.jpg",
+      "images/cards/cat.jpg",
+      "images/cards/flamingo.jpg",
+      "images/cards/mushroom.jpg",
+      "images/cards/parrot.jpg",
+      "images/cards/summer.jpg",
+      "images/cards/sunflower.jpg",
+      "images/cards/tree.jpg",
+      "images/cards/whale.jpg",
+    ];
+    const shuffled = [...icons].sort(() => 0.5 - Math.random());
+    selectedIcons = shuffled.slice(0, 3);
 
-  cardModal.classList.toggle("hidden");
-
-  if (isNaN(cardIndex)) return;
-
-  const card = cards[cardIndex];
-
-  modalTitle.textContent = `Update ${card.name}`;
-  modalSubmit.textContent = "Update";
-
-  handleIconInput(card.icon, iconInput);
-  nameInput.value = card.name;
-  descriptionInput.value = card.description;
-}
-
-function displayIconOptions() {
-  const iconOptionsEl = cardModal.querySelector(".icon-options");
-
-  const icons = [
-    "images/cards/bamboo.jpg",
-    "images/cards/butterflies.jpg",
-    "images/cards/cat.jpg",
-    "images/cards/flamingo.jpg",
-    "images/cards/mushroom.jpg",
-    "images/cards/parrot.jpg",
-    "images/cards/summer.jpg",
-    "images/cards/sunflower.jpg",
-    "images/cards/tree.jpg",
-    "images/cards/whale.jpg",
-  ];
-  const shuffled = [...icons].sort(() => 0.5 - Math.random());
-  selectedIcons = shuffled.slice(0, 3);
-
-  iconOptionsEl.innerHTML = selectedIcons
-    .map(
-      (icon) => `
+    iconOptions.innerHTML = selectedIcons
+      .map(
+        (icon) => `
       <img src="${icon}">
     `
-    )
-    .join("");
-}
+      )
+      .join("");
+  }
+
+  return { toggle };
+})();
 
 function toggleTheme(force = undefined) {
   const toggle = document.querySelector(".theme-toggle");

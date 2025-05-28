@@ -13,15 +13,15 @@
     <div class="app container">
       <div class="header">
         <h1 class="title">Card List</h1>
-        <button onclick="toggleCardModal()">New Card</button>
+        <button onclick="CardModal.toggle()">New Card</button>
         <button class="theme-toggle" onclick="toggleTheme()"></button>
       </div>
 
       <div class="cards"></div>
 
-      <div class="card-modal modal" onclick="toggleCardModal()">
+      <div class="card-modal modal" onclick="CardModal.toggle()">
         <div class="modal-content" onclick="stopPropagation(event)">
-          <button class="close" onclick="toggleCardModal()">
+          <button class="close" onclick="CardModal.toggle()">
             <i class="bi bi-x-lg"></i>
           </button>
           <div class="title">Add a new Card</div>
