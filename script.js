@@ -46,21 +46,39 @@ const CardModal = (() => {
   const descriptionInput = document.querySelector(".card-modal .description-input");
   const iconOptions = document.querySelector(".card-modal .icon-options");
   const iconInput = document.querySelector(".card-modal .icon-input");
-  const iconFileInput = document.querySelector("input[type=file]")
+  const iconFileInput = iconInput.querySelector("input[type=file]");
+  let selectedIcon = null;
 
-  iconInput.oninput = () => displayIconInput();
+  const icons = [
+    "images/cards/bamboo.jpg",
+    "images/cards/butterflies.jpg",
+    "images/cards/cat.jpg",
+    "images/cards/flamingo.jpg",
+    "images/cards/mushroom.jpg",
+    "images/cards/parrot.jpg",
+    "images/cards/summer.jpg",
+    "images/cards/sunflower.jpg",
+    "images/cards/tree.jpg",
+    "images/cards/whale.jpg",
+  ];
+
+  iconInput.oninput = () => refreshSelection();
+  iconFileInput.oninput = (event) => {
+    if (event.target.files.length > 0) selectedIcon = URL.createObjectURL(event.target.files[0]);
+  };
 
   function getCard() {
     const card = {
       name: nameInput.value,
       description: descriptionInput.value,
-      icon: iconFileInput.files.length > 0 ? URL.createObjectURL(iconFileInput.files[0]) : "images/icon-default-64x64.png",
+      icon: selectedIcon || "images/icon-default-64x64.png",
     };
     return card;
   }
 
   function toggle(cardIndex) {
-    iconInput.querySelector("input[type=file]").value = null;
+    iconFileInput.value = "";
+    selectedIcon = null;
     title.textContent = "Add a new Card";
     submitBtn.textContent = "Add";
     nameInput.value = "";
@@ -78,44 +96,49 @@ const CardModal = (() => {
       descriptionInput.value = selectedCard.description;
     }
 
-    displayIconInput();
+    refreshSelection();
     element.classList.toggle("hidden");
   }
 
-  function displayIconInput() {
-    const card = getCard();
-    iconInput.querySelector("img").src = card?.icon ? card.icon : "";
-    iconInput.querySelector("img").classList.toggle("hidden", !card?.icon);
-    iconInput.querySelector("i").classList.toggle("hidden", !!card?.icon);
-    iconInput.style.border = card?.icon ? "2px solid" : "2px dashed";
-  }
-
   function displayIconOptions() {
-    const icons = [
-      "images/cards/bamboo.jpg",
-      "images/cards/butterflies.jpg",
-      "images/cards/cat.jpg",
-      "images/cards/flamingo.jpg",
-      "images/cards/mushroom.jpg",
-      "images/cards/parrot.jpg",
-      "images/cards/summer.jpg",
-      "images/cards/sunflower.jpg",
-      "images/cards/tree.jpg",
-      "images/cards/whale.jpg",
-    ];
     const shuffled = [...icons].sort(() => 0.5 - Math.random());
-    selectedIcons = shuffled.slice(0, 3);
+    const selectedIcons = shuffled.slice(0, 3);
 
     iconOptions.innerHTML = selectedIcons
       .map(
         (icon) => `
-      <img src="${icon}">
-    `
+          <button data-icon="${icons.indexOf(icon)}" onclick="CardModal.selectIcon(${icons.indexOf(icon)})">
+            <img src="${icon}">
+          </button>
+        `
       )
       .join("");
   }
 
-  return { toggle, getCard };
+  function selectIcon(index) {
+    selectedIcon = icons[index];
+
+    refreshSelection();
+  }
+
+  function refreshSelection() {
+    iconOptions.querySelectorAll(":scope > *").forEach((el) => el.classList.remove("selected"));
+    if (!iconFileInput.value) iconInput.querySelector("img").src = ""
+    iconInput.querySelector("img").classList.toggle("hidden", !iconFileInput.value)
+    iconInput.querySelector("i").classList.toggle("hidden", iconFileInput.value)
+    iconInput.classList.remove("selected");
+
+    if (!selectedIcon) return
+
+    if (icons.includes(selectedIcon)) {
+      iconOptions.querySelector(`[data-icon="${icons.indexOf(selectedIcon)}"]`).classList.add("selected");
+    } else {
+      iconInput.querySelector("img").src = selectedIcon;
+      iconInput.classList.add("selected");
+    }
+  }
+
+  return { toggle, getCard, selectIcon };
 })();
 
 function toggleTheme(force = undefined) {

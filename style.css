@@ -33,7 +33,6 @@ button {
   cursor: pointer;
 }
 
-button,
 .button {
   display: inline-block;
   padding: 0.5rem 1rem;
@@ -173,6 +172,16 @@ body {
   gap: 4px;
 }
 
+.card-modal .icon-options > * {
+  display: flex;
+  width: 64px;
+  height: 64px;
+}
+
+.card-modal .icon-options > *.selected {
+  border: 2px solid var(--border-color);
+}
+
 .card-modal .icon-input {
   display: flex;
   align-items: center;
@@ -192,6 +201,10 @@ body {
 
 .card-modal .icon-input input[type=file] {
   display: none;
+}
+
+.card-modal .icon-input.selected {
+  border: 2px solid var(--border-color);
 }
 
 .card-modal .description-input {
