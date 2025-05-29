@@ -49,7 +49,7 @@ const CardModal = (() => {
   const iconFileInput = iconInput.querySelector("input[type=file]");
   let selectedIcon = null;
 
-  const icons = [
+  const baseIcons = [
     "images/cards/bamboo.jpg",
     "images/cards/butterflies.jpg",
     "images/cards/cat.jpg",
@@ -62,9 +62,18 @@ const CardModal = (() => {
     "images/cards/whale.jpg",
   ];
 
-  iconInput.oninput = () => refreshSelection();
+  iconInput.onclick = (event) => {
+    if (!event.target.value) return
+    if (!baseIcons.includes(selectedIcon)) return
+
+    event.preventDefault()
+    selectedIcon = URL.createObjectURL(event.target.files[0]);
+    refreshSelection();
+  }
+  
   iconFileInput.oninput = (event) => {
-    if (event.target.files.length > 0) selectedIcon = URL.createObjectURL(event.target.files[0]);
+    selectedIcon = event.target.value ? URL.createObjectURL(event.target.files[0]) : null
+    refreshSelection();
   };
 
   function getCard() {
@@ -101,13 +110,13 @@ const CardModal = (() => {
   }
 
   function displayIconOptions() {
-    const shuffled = [...icons].sort(() => 0.5 - Math.random());
+    const shuffled = [...baseIcons].sort(() => 0.5 - Math.random());
     const selectedIcons = shuffled.slice(0, 3);
 
     iconOptions.innerHTML = selectedIcons
       .map(
         (icon) => `
-          <button data-icon="${icons.indexOf(icon)}" onclick="CardModal.selectIcon(${icons.indexOf(icon)})">
+          <button data-icon="${baseIcons.indexOf(icon)}" onclick="CardModal.selectIcon(${baseIcons.indexOf(icon)})">
             <img src="${icon}">
           </button>
         `
@@ -116,7 +125,7 @@ const CardModal = (() => {
   }
 
   function selectIcon(index) {
-    selectedIcon = icons[index];
+    selectedIcon = baseIcons[index];
 
     refreshSelection();
   }
@@ -130,8 +139,8 @@ const CardModal = (() => {
 
     if (!selectedIcon) return
 
-    if (icons.includes(selectedIcon)) {
-      iconOptions.querySelector(`[data-icon="${icons.indexOf(selectedIcon)}"]`).classList.add("selected");
+    if (baseIcons.includes(selectedIcon)) {
+      iconOptions.querySelector(`[data-icon="${baseIcons.indexOf(selectedIcon)}"]`).classList.add("selected");
     } else {
       iconInput.querySelector("img").src = selectedIcon;
       iconInput.classList.add("selected");
