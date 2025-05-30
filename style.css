@@ -157,6 +157,14 @@ body {
   width: 100%;
 }
 
+.cards .item img {
+  border: 2px solid transparent;
+}
+
+.cards .item.selected img {
+  border-color: var(--border-color);
+}
+
 .cards .item p {
   padding: 5px;
 }
@@ -167,7 +175,7 @@ body {
   gap: 10px;
 }
 
-.card-modal .icon-input-group, .card-modal .icon-options {
+.card-modal .icon-select, .card-modal .icon-options {
   display: flex;
   gap: 4px;
 }
@@ -176,6 +184,8 @@ body {
   display: flex;
   width: 64px;
   height: 64px;
+  background-color: transparent;
+  border: 2px solid transparent;
 }
 
 .card-modal .icon-options > *.selected {

@@ -2,6 +2,7 @@ const projectName = "card-list";
 const cardsEl = document.querySelector(".cards");
 
 let cards = JSON.parse(localStorage.getItem(`${projectName}_cards`)) || [];
+let selectedCard = null
 
 let darkTheme = JSON.parse(localStorage.getItem(`${projectName}_darkTheme`)) || false;
 
@@ -29,13 +30,19 @@ function displayCards() {
     .map(
       (card) =>
         `
-      <div class="item" onclick="CardModal.toggle(${cards.indexOf(card)})">
+      <div class="item ${selectedCard === card ? "selected" : ""}" onclick="selectCard(${cards.indexOf(card)})">
         <img src="${card.icon}">
         <p class="item-text truncated">${card.name}</p>
       </div>
     `
     )
     .join("");
+}
+
+function selectCard(index) {
+  selectedCard = cards[index]
+  displayCards()
+  CardModal.toggle()
 }
 
 const CardModal = (() => {
@@ -47,6 +54,7 @@ const CardModal = (() => {
   const iconOptions = document.querySelector(".card-modal .icon-options");
   const iconInput = document.querySelector(".card-modal .icon-input");
   const iconFileInput = iconInput.querySelector("input[type=file]");
+  let selectableIcons = []
   let selectedIcon = null;
 
   const baseIcons = [
@@ -68,12 +76,12 @@ const CardModal = (() => {
 
     event.preventDefault()
     selectedIcon = URL.createObjectURL(event.target.files[0]);
-    refreshSelection();
+    refreshIconSelectEl();
   }
   
   iconFileInput.oninput = (event) => {
     selectedIcon = event.target.value ? URL.createObjectURL(event.target.files[0]) : null
-    refreshSelection();
+    refreshIconSelectEl();
   };
 
   function getCard() {
@@ -85,7 +93,7 @@ const CardModal = (() => {
     return card;
   }
 
-  function toggle(cardIndex) {
+  function toggle() {
     iconFileInput.value = "";
     selectedIcon = null;
     title.textContent = "Add a new Card";
@@ -93,27 +101,26 @@ const CardModal = (() => {
     nameInput.value = "";
     descriptionInput.value = "";
 
-    displayIconOptions();
-
-    if (isFinite(cardIndex)) {
-      const selectedCard = cards[cardIndex];
-
+    if (selectedCard) {
       title.textContent = `Update ${selectedCard.name}`;
       submitBtn.textContent = "Update";
 
       nameInput.value = selectedCard.name;
       descriptionInput.value = selectedCard.description;
+
+      selectedIcon = selectedCard.icon
     }
 
-    refreshSelection();
+    displayIconOptions()
+    refreshIconSelectEl();
     element.classList.toggle("hidden");
   }
 
   function displayIconOptions() {
     const shuffled = [...baseIcons].sort(() => 0.5 - Math.random());
-    const selectedIcons = shuffled.slice(0, 3);
+    selectableIcons = shuffled.slice(0, 3);
 
-    iconOptions.innerHTML = selectedIcons
+    iconOptions.innerHTML = selectableIcons
       .map(
         (icon) => `
           <button data-icon="${baseIcons.indexOf(icon)}" onclick="CardModal.selectIcon(${baseIcons.indexOf(icon)})">
@@ -127,19 +134,20 @@ const CardModal = (() => {
   function selectIcon(index) {
     selectedIcon = baseIcons[index];
 
-    refreshSelection();
+    refreshIconSelectEl();
   }
 
-  function refreshSelection() {
+  function refreshIconSelectEl() {
     iconOptions.querySelectorAll(":scope > *").forEach((el) => el.classList.remove("selected"));
-    if (!iconFileInput.value) iconInput.querySelector("img").src = ""
-    iconInput.querySelector("img").classList.toggle("hidden", !iconFileInput.value)
-    iconInput.querySelector("i").classList.toggle("hidden", iconFileInput.value)
+    const hasIcon = iconFileInput.value || selectedCard?.icon
+    if (!hasIcon) iconInput.querySelector("img").src = ""
+    iconInput.querySelector("img").classList.toggle("hidden", !hasIcon)
+    iconInput.querySelector("i").classList.toggle("hidden", !!hasIcon)
     iconInput.classList.remove("selected");
 
     if (!selectedIcon) return
 
-    if (baseIcons.includes(selectedIcon)) {
+    if (selectableIcons.includes(selectedIcon)) {
       iconOptions.querySelector(`[data-icon="${baseIcons.indexOf(selectedIcon)}"]`).classList.add("selected");
     } else {
       iconInput.querySelector("img").src = selectedIcon;
